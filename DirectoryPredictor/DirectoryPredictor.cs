@@ -185,7 +185,16 @@ public partial class DirectoryPredictor : ICommandPredictor, IDisposable
         var lastWordIndex = input.LastIndexOf(' ');
         var returnInput = input.Substring(0, lastWordIndex);
 
-        List<PredictiveSuggestion> suggestions = matches.Select(file => new PredictiveSuggestion($"{returnInput} {file}")).ToList();
+        List<PredictiveSuggestion> suggestions = matches.Select(file => 
+        {
+            var fileWithoutFolder = file.Replace(" #folder", "");
+            var formattedFile = fileWithoutFolder.Contains(' ') ? $"\"{fileWithoutFolder}\"" : fileWithoutFolder;
+            if (file.EndsWith(" #folder"))
+            {
+                formattedFile += " #folder";
+            }
+            return new PredictiveSuggestion($"{returnInput} {formattedFile}");
+        }).ToList();
 
         return new SuggestionPackage(suggestions);
     }
